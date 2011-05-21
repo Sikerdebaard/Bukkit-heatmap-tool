@@ -1,0 +1,4 @@
+name: Hete map
+main: net.hondev.bukkit.heatmap.HeatMap
+version: 1
+commands:
