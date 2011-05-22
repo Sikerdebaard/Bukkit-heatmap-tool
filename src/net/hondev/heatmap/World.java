@@ -6,8 +6,6 @@
 
 package net.hondev.heatmap;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
+import org.bukkit.entity.CreatureType;
 
 import net.hondev.math.BigSquareRoot;
 
@@ -48,8 +46,6 @@ public class World {
 	private MathContext smallContext;
 	private double max, min;
 	
-	private int gradient[];
-	
 	public World(long id){
 		chunks = new HashMap<Integer, Map<Integer, Chunk>>();
 		hotChunks = new ArrayList<Chunk>();
@@ -68,14 +64,12 @@ public class World {
 		max = Integer.MIN_VALUE;
 		min = Integer.MAX_VALUE;
 		
-		gradient = new int[100];
-		
 		left = right = top = bottom = 0;
 		
 		this.id = id;
 	}
 	
-	public void registerSpawn(int x, int z, long time){
+	public void registerSpawn(int x, int z, CreatureType creature, long time){
 		Map<Integer, Chunk> m;
 		Chunk c;
 		
@@ -114,7 +108,7 @@ public class World {
 			m.put(Integer.valueOf(z), c);
 		}
 		
-		c.registerSpawn(time);
+		c.registerSpawn(creature, time);
 		
 		spawns++;
 	}
@@ -153,6 +147,50 @@ public class World {
 		System.out.println("");
 	}
 	
+	private String getCreatureJSON(Chunk c){
+		String out = "\"m\":[";
+		
+		if(c.spawns <= 0)
+			return out + "]";
+		
+		for(CreatureType ct : c.spawnCounter.keySet())
+			out += "{\"" + ct.ordinal() + "\":" + c.spawnCounter.get(ct) + "},";
+		
+		out = out.substring(0, out.length() - 1) + "]";
+		
+		System.out.println(out);
+		
+		return out;
+	}
+	
+	private String upperCaseFirst(String in){
+		return in.substring(0, 1).toUpperCase() + in.substring(1, in.length()).toLowerCase();
+	}
+	
+	private String getMobDefJSON(){
+		String out = "[{";
+		
+		for(CreatureType c : CreatureType.values())
+			out += "\"" + c.ordinal() + "\":" + "\"" + upperCaseFirst(c.toString()).replace('_', '-') + "\",";
+		
+		return out.substring(0, out.length() - 1) + "}]";
+	}
+	
+	private void writeMobDef(){
+		File out = new File(Config.JSON_OUT + "mobdef.json");
+		
+		try {
+			BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(out));
+			bout.write(getMobDefJSON().getBytes(Charset.forName("ASCII")));
+			bout.flush();
+			bout.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void saveJSON(){
 		if(!new File(Config.JSON_OUT).exists())
 			new File(Config.JSON_OUT).mkdirs();
@@ -160,22 +198,23 @@ public class World {
 		if(hotChunks.size() < 1)
 			return;
 		
+		
 		File out = new File(Config.JSON_OUT + id + ".json");
 		try {
 			BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(out));
 			
-			bout.write("var data = { \"markers\":[ ".getBytes(Charset.forName("ASCII")));
+			bout.write(("var data = { \"mobdef\":" + getMobDefJSON() + ", " + "\"markers\":[ ").getBytes(Charset.forName("ASCII")));
 			
 			Chunk c;
 			for(int i = 0; i < hotChunks.size() - 1; i++){
 				c = hotChunks.get(i);
 				System.out.println(c.spawns + " - " + c.activity + " - " + c.load + " - " + c.avgSpawnsPerHour + "   X=" + c.x + " Y=" + c.z);
 				
-				bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + "},").getBytes(Charset.forName("ASCII")));
+				bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "},").getBytes(Charset.forName("ASCII")));
 			}
 			
 			c = hotChunks.get(hotChunks.size() - 1);
-			bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + "}").getBytes(Charset.forName("ASCII")));
+			bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "}").getBytes(Charset.forName("ASCII")));
 			
 			bout.write("]}".getBytes(Charset.forName("ASCII")));
 			

@@ -6,6 +6,11 @@
 
 package net.hondev.heatmap;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bukkit.entity.CreatureType;
+
 public class Chunk {
 	private static final int MAX_GAP = 600000;
 	
@@ -14,6 +19,8 @@ public class Chunk {
 	protected long activity;
 	protected int load;
 	protected int spawns;
+	
+	protected Map<CreatureType, Integer> spawnCounter;
 	
 	protected float avgSpawnsPerHour;
 	
@@ -25,11 +32,13 @@ public class Chunk {
 		load = 0;
 		spawns = 0;
 		
+		this.spawnCounter = new HashMap<CreatureType, Integer>();
+		
 		this.x = x;
 		this.z = z;
 	}
 	
-	public void registerSpawn(long time){ // very... very... long time.
+	public void registerSpawn(CreatureType creature, long time){ // very... very... long time.
 		if(activityBegin == Long.MIN_VALUE){
 			activityBegin = time;
 			lastTime = time;
@@ -40,6 +49,13 @@ public class Chunk {
 			activityBegin = time;
 			load++;
 		}
+		
+		Integer i;
+		if((i = spawnCounter.get(creature)) != null)
+			spawnCounter.put(creature, Integer.valueOf(i.intValue() + 1));
+		else 
+			spawnCounter.put(creature, Integer.valueOf(1));
+		
 		
 		lastTime = time;
 		

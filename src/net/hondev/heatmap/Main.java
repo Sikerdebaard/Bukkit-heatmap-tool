@@ -27,7 +27,7 @@ long time = System.currentTimeMillis();
 		long l = Long.MIN_VALUE;
 		int c = 0;
 		for(File f :  list.listFiles()){
-			if(f.isFile()){
+			if(f.isFile() && f.length() > 0){
 				reader = new HeatmapReader(f);
 				for(Spawn s : reader){
 					if(l == Long.MIN_VALUE){
