@@ -385,7 +385,7 @@ MarkerClusterer.prototype.calculator_ = function(markers, numStyles, mobs) {
   }
   else
   {
-	tip = "x: " + markers[0].x + " y: " + markers[0].y + "<br />";
+	tip = "<b>x:</b> " + markers[0].y + " <b>z:</b> " + markers[0].x + "<br />";
 	tip = tip + "Active: " + markers[0].time + " min <br />";
 	tip = tip + "Spawns: " + markers[0].total + "<br />";
 	for(mob in markers[0].mobs)
@@ -1121,7 +1121,7 @@ ClusterIcon.prototype.onAdd = function() {
 
  var that = this;
   google.maps.event.addDomListener(this.div_, 'mouseover', function() {
-   that.div_.tooltip.style.cssText = "visibility:visible;border:1px solid #000000;width:100px;text-align:left;z-index:100;color:#000000;padding:5px;font-weight:normal;margin:0px;background-image:url('img/bg.png');border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; line-height:14px; text-shadow: 0px 0px 0px #000; -moz-text-shadow: 0px 0px 0px #000; -webkit-text-shadow: 0px 0px 0px #000; -webkit-text-stroke: 0px #000000;";
+   that.div_.tooltip.style.cssText = "visibility:visible;border:1px solid #000000;width:110px;text-align:left;z-index:100;color:#000000;padding:5px;font-weight:normal;margin:0px;background-image:url('img/bg.png');border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; line-height:14px; text-shadow: 0px 0px 0px #000; -moz-text-shadow: 0px 0px 0px #000; -webkit-text-shadow: 0px 0px 0px #000; -webkit-text-stroke: 0px #000000;";
   });
   google.maps.event.addDomListener(this.div_, 'mouseout', function() {
    that.div_.tooltip.style.cssText = "visibility:hidden;";
