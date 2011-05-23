@@ -48,7 +48,7 @@ public class Universe {
 		if((wrld = worlds.get(Long.valueOf(spawn.getWorld()))) == null){
 			worlds.put(Long.valueOf(spawn.getWorld()), (wrld = new World(spawn.getWorld())));
 		}
-		wrld.registerSpawn(spawn.getChunkX(), spawn.getChunkZ(), spawn.getTime());
+		wrld.registerSpawn(spawn.getChunkX(), spawn.getChunkZ(), spawn.getCreature(), spawn.getTime());
 		
 		spawns++;
 	}
