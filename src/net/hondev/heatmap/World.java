@@ -168,12 +168,12 @@ public class World {
 	}
 	
 	private String getMobDefJSON(){
-		String out = "[{";
+		String out = "[";
 		
 		for(CreatureType c : CreatureType.values())
-			out += "\"" + c.ordinal() + "\":" + "\"" + upperCaseFirst(c.toString()).replace('_', '-') + "\",";
+			out += "{\"" + c.ordinal() + "\":" + "\"" + upperCaseFirst(c.toString()).replace('_', '-') + "\"},";
 		
-		return out.substring(0, out.length() - 1) + "}]";
+		return out.substring(0, out.length() - 1) + "]";
 	}
 	
 	private void writeMobDef(){
@@ -210,11 +210,11 @@ public class World {
 				c = hotChunks.get(i);
 				System.out.println(c.spawns + " - " + c.activity + " - " + c.load + " - " + c.avgSpawnsPerHour + "   X=" + c.x + " Y=" + c.z);
 				
-				bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "},").getBytes(Charset.forName("ASCII")));
+				bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + Math.round(c.avgSpawnsPerHour) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "},").getBytes(Charset.forName("ASCII")));
 			}
 			
 			c = hotChunks.get(hotChunks.size() - 1);
-			bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + ((int) Math.round(c.avgSpawnsPerHour)) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "}").getBytes(Charset.forName("ASCII")));
+			bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + Math.round(c.avgSpawnsPerHour) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "}").getBytes(Charset.forName("ASCII")));
 			
 			bout.write("]}".getBytes(Charset.forName("ASCII")));
 			

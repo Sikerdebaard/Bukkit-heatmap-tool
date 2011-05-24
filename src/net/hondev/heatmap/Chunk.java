@@ -66,10 +66,15 @@ public class Chunk {
 		activity += (lastTime - activityBegin);
 		load++;
 		
+		if(activity < 0)
+			System.out.println(activity);
+		
 		if(activity == 0)
 			activity = MAX_GAP - 1;
 		
 		
-		avgSpawnsPerHour = spawns / ((activity + 0f) / 60000);
+		avgSpawnsPerHour = (float) (spawns / (activity / 1000.0 / 60.0 / 60.0));
+		if(avgSpawnsPerHour > spawns)
+			avgSpawnsPerHour = spawns;
 	}
 }

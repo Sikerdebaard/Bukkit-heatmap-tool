@@ -7,6 +7,8 @@
 package net.hondev.heatmap;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class Main {
 
@@ -24,20 +26,22 @@ long time = System.currentTimeMillis();
 		
 		System.out.println("Reading data...");
 		
-		long l = Long.MIN_VALUE;
 		int c = 0;
-		for(File f :  list.listFiles()){
-			if(f.isFile() && f.length() > 0){
+		File[] flist = list.listFiles();
+		Arrays.sort(flist, new Comparator<File>() {
+
+			@Override
+			public int compare(File o1, File o2) {
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
+		for(File f :  flist){
+			if(f.isFile() && f.length() > 0 && Long.parseLong(f.getName().substring(0, f.getName().length() - 4)) > System.currentTimeMillis() - 10800000L){
 				reader = new HeatmapReader(f);
 				for(Spawn s : reader){
-					if(l == Long.MIN_VALUE){
-						l = s.getTime();
-					}
+					if(s.getTime() < System.currentTimeMillis() - 7200000L)
+						continue;
 					
-					if(s.getTime() - l >= Long.MAX_VALUE /*120000L*/){
-						break;
-						//System.out.println(c);
-					}
 					c++;
 					universe.registerSpawn(s);
 				}

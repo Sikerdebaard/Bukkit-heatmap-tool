@@ -42,14 +42,14 @@ public class SpawnBuffer {
 	 * @param z Chunk Y of spawn
 	 * @param world World No.
 	 */
-	public void registerSpawn(int x, int z, long world, int creature){
+	public void registerSpawn(int x, int z, long world, int creature, long time){
 		synchronized(buffer){
 			try {
 				dataOut.writeInt(x);
 				dataOut.writeInt(z);
 				dataOut.writeLong(world);
 				dataOut.writeInt(creature);
-				dataOut.writeLong(System.currentTimeMillis());
+				dataOut.writeLong(time);
 			} catch (IOException e) {
 				e.printStackTrace(); // needs propper handling
 				// TODO: propper handling; data file gets corrupt when this error is triggered
@@ -68,6 +68,9 @@ public class SpawnBuffer {
 	 * Saves current buffer to GZip-compressed file in net.hondev.bukkit.heatmap.Config.dataFoler.
 	 */
 	public void saveBuffer(){
+		if(buffer.size() < RECORD_SIZE * 60)
+			return;
+		
 		long time = System.currentTimeMillis();
 		
 		log.info("Heatmap: saving buffers (" + records + " records in buffer)");
@@ -87,9 +90,6 @@ public class SpawnBuffer {
 		}
 		
 		synchronized(buffer){
-			if(buffer.size() < RECORD_SIZE * 60)
-				return;
-			
 			try {
 				GZIPOutputStream out = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(fout)));
 				buffer.writeTo(out);

@@ -37,8 +37,8 @@ public class HeatMap extends JavaPlugin {
 	public void onEnable() {
 		creatureListener = new CreatureListener(this);
 		worldSaveListener = new WorldSaveListener(this);
-		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, creatureListener, Event.Priority.Lowest, this);
-		getServer().getPluginManager().registerEvent(Event.Type.WORLD_SAVE, worldSaveListener, Event.Priority.Lowest, this);
+		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, creatureListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.WORLD_SAVE, worldSaveListener, Event.Priority.Monitor, this);
 		log.info("Heatmap plugin started.");
 	}
 	
@@ -51,7 +51,7 @@ public class HeatMap extends JavaPlugin {
 		lastSave = System.currentTimeMillis();
 	}
 	
-	public synchronized void registerSpawn(int x, int z, long world, int creature){
-		buffer.registerSpawn(x, z, world, creature);
+	public synchronized void registerSpawn(int x, int z, long world, int creature, long time){
+		buffer.registerSpawn(x, z, world, creature, time);
 	}
 }
