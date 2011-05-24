@@ -59,7 +59,7 @@
  * @constructor
  * @extends google.maps.OverlayView
  */
-function MarkerClusterer(map, opt_markers, opt_options) {
+function MarkerClusterer(map, opt_markers, mobs) {
   // MarkerClusterer implements google.maps.OverlayView interface. We use the
   // extend function to extend MarkerClusterer with google.maps.OverlayView
   // because it might not always be available when the code is defined so we
@@ -79,6 +79,7 @@ function MarkerClusterer(map, opt_markers, opt_options) {
    */
   this.clusters_ = [];
 
+   
   this.sizes = [53, 56, 66, 78, 90];
 
   /**
@@ -92,7 +93,7 @@ function MarkerClusterer(map, opt_markers, opt_options) {
    */
   this.ready_ = false;
 
-  var options = opt_options || {};
+  var options = "";
 
   /**
    * @type {number}
@@ -354,12 +355,46 @@ MarkerClusterer.prototype.getMaxZoom = function() {
  *  @return {Object} A object properties: 'text' (string) and 'index' (number).
  *  @private
  */
-MarkerClusterer.prototype.calculator_ = function(markers, numStyles) {
+MarkerClusterer.prototype.calculator_ = function(markers, numStyles, mobs) {
   var index = 0;
   var count = 0;
+  var total = 0;
+  var time = 0;
+  var tip = "";
+  var mobcount = [];
   for (var i = 0, marker; marker = markers[i]; i++)
   {
 	count = count + marker.weight;
+	total = total + marker.total;
+	for(mob in markers[i].mobs)
+	{
+		for(mobtype in markers[i].mobs[mob])
+		{
+			if(mobcount[mobtype] == undefined) { mobcount[mobtype] = parseInt(markers[i].mobs[mob][mobtype]); }
+			else { mobcount[mobtype] += parseInt(markers[i].mobs[mob][mobtype]); }
+		}
+	}
+  }
+  if(i > 1) {
+	tip = "<b>Cluster</b> (" + i + ")<br />";
+	tip = tip + "Spawns: " + total + "<br />";
+	for(mobtype in mobcount)
+	{
+		tip = tip + "<img src='img/" + mobtype + ".png' border='0' title='" + mobtype + "' style='position:absolute;' /> &nbsp; &nbsp; &nbsp; &nbsp;" + mobcount[mobtype] + " <br />";		
+	}
+  }
+  else
+  {
+	tip = "<b>x:</b> " + markers[0].y + " <b>z:</b> " + markers[0].x + "<br />";
+	tip = tip + "Active: " + markers[0].time + " min <br />";
+	tip = tip + "Spawns: " + markers[0].total + "<br />";
+	for(mob in markers[0].mobs)
+	{
+		for(mobtype in markers[0].mobs[mob])
+		{
+			tip = tip + "<img src='img/" + mobtype + ".png' border='0' title='" + mobtype + "' style='position:absolute;' /> &nbsp; &nbsp; &nbsp; &nbsp;" + markers[0].mobs[mob][mobtype] + " <br />";
+		}
+	}
   }
   index = 0;
   if(count < 25) { index = 1; }
@@ -371,7 +406,8 @@ MarkerClusterer.prototype.calculator_ = function(markers, numStyles) {
   index = Math.min(index, numStyles);
   return {
     text: count,
-    index: index
+    index: index,
+	tip: tip
   };
 };
 
@@ -1074,15 +1110,23 @@ ClusterIcon.prototype.onAdd = function() {
     var pos = this.getPosFromLatLng_(this.center_);
     this.div_.style.cssText = this.createCss(pos,this.sums_.index);
     this.div_.innerHTML = this.sums_.text;
+	this.div_.tooltip = document.createElement('DIV');
+	this.div_.tooltip.innerHTML = this.sums_.tip;
+   this.div_.tooltip.style.cssText = "visibility:hidden;";
+	this.div_.appendChild(this.div_.tooltip);
   }
 
   var panes = this.getPanes();
   panes.overlayMouseTarget.appendChild(this.div_);
 
- // var that = this;
-  //google.maps.event.addDomListener(this.div_, 'click', function() {
-   // that.triggerClusterClick();
-  //});
+ var that = this;
+  google.maps.event.addDomListener(this.div_, 'mouseover', function() {
+   that.div_.tooltip.style.cssText = "visibility:visible;border:1px solid #000000;width:110px;text-align:left;z-index:100;color:#000000;padding:5px;font-weight:normal;margin:0px;background-image:url('img/bg.png');border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; line-height:14px; text-shadow: 0px 0px 0px #000; -moz-text-shadow: 0px 0px 0px #000; -webkit-text-shadow: 0px 0px 0px #000; -webkit-text-stroke: 0px #000000;";
+  });
+  google.maps.event.addDomListener(this.div_, 'mouseout', function() {
+   that.div_.tooltip.style.cssText = "visibility:hidden;";
+  });
+  
 };
 
 
@@ -1169,6 +1213,7 @@ ClusterIcon.prototype.onRemove = function() {
 ClusterIcon.prototype.setSums = function(sums) {
   this.sums_ = sums;
   this.text_ = sums.text;
+  this.tip_ = sums.tip;
   this.index_ = sums.index;
   if (this.div_) {
     this.div_.innerHTML = sums.text;
@@ -1216,7 +1261,7 @@ ClusterIcon.prototype.createCss = function(pos,index) {
   style.push('background-image:url(' + this.url_ + ');');
   var backgroundPosition = this.backgroundPosition_ ? this.backgroundPosition_ : '0 0';
   style.push('background-position:' + backgroundPosition + ';');
-  style.push('text-shadow: 1px 1px 1px #000; -moz-text-shadow: 1px 1px 1px #000; -webkit-text-shadow: 1px 1px 1px #000; -webkit-text-stroke: 0.5px #000000; ');
+  style.push('text-shadow: 1px 1px 1px #000; -moz-text-shadow: 1px 1px 1px #000; -webkit-text-shadow: 1px 1px 1px #000; -webkit-text-stroke: 0.5px #000000; z-index:1;');
   if (typeof this.anchor_ === 'object') {
     if (typeof this.anchor_[0] === 'number' && this.anchor_[0] > 0 &&
         this.anchor_[0] < this.height_) {

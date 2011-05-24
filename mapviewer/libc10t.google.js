@@ -101,12 +101,33 @@ var markers = [];
     var marker = new google.maps.Marker({
         position: latlng, 
         map: map, 
-		weight: m.w
+		weight: m.w,
+		x: m.x,
+		y: m.y,
+		total: m.t,
+		time: m.a,
+		mobs: m.m
     });
 	markers.push(marker);
   }
-  var markerCluster = new MarkerClusterer(map, markers);
-
+  
+var mobs = data.mobdef;
+ 
+  var markerCluster = new MarkerClusterer(map, markers, mobs);
+  /*
+    for (var i = 0; i < globaldata.markers.length; i++)
+  {
+    var m = globaldata.markers[i];
+    var point = new google.maps.Point(m.x / factor, m.y / factor);
+    var latlng = EuclideanProjection.prototype.fromPointToLatLng(point)
+    
+    new google.maps.Marker({
+        position: latlng, 
+        map: map, 
+        title: m.text
+    });
+	}
+	*/	
   if (window.attachEvent) {
     window.attachEvent("onresize", function() {this.map.onResize()} );
   } else {
