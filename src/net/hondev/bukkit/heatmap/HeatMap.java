@@ -17,13 +17,13 @@ public class HeatMap extends JavaPlugin {
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private CreatureListener creatureListener;
 	private WorldListener worldSaveListener;
-	private SpawnBuffer buffer;
+	private CreatureBuffer buffer;
 	
 	private long lastSave;
 	
 	public HeatMap(){
 		super();
-		buffer = new SpawnBuffer(log);
+		buffer = new CreatureBuffer(log);
 		lastSave = 0;
 	}
 	
@@ -37,7 +37,8 @@ public class HeatMap extends JavaPlugin {
 	public void onEnable() {
 		creatureListener = new CreatureListener(this);
 		worldSaveListener = new WorldSaveListener(this);
-		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, creatureListener, Event.Priority.Monitor, this);
+		//getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, creatureListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, creatureListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.WORLD_SAVE, worldSaveListener, Event.Priority.Monitor, this);
 		log.info("Heatmap plugin started.");
 	}
@@ -46,12 +47,18 @@ public class HeatMap extends JavaPlugin {
 		if(System.currentTimeMillis() - lastSave < 900000L)
 			return;
 		
-		buffer.saveBuffer();
-		getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[Heatmap] buffers flushed.");
-		lastSave = System.currentTimeMillis();
+		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+			
+			@Override
+			public void run() {
+				buffer.saveBuffer();
+				getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[Heatmap] buffers flushed.");
+				lastSave = System.currentTimeMillis();
+			}
+		});
 	}
 	
-	public synchronized void registerSpawn(int x, int z, long world, int creature, long time){
-		buffer.registerSpawn(x, z, world, creature, time);
+	public synchronized void registerDeath(int x, int z, long world, int creature, long time){
+		buffer.registerDeath(x, z, world, creature, time);
 	}
 }

@@ -158,8 +158,6 @@ public class World {
 		
 		out = out.substring(0, out.length() - 1) + "]";
 		
-		System.out.println(out);
-		
 		return out;
 	}
 	
@@ -208,7 +206,6 @@ public class World {
 			Chunk c;
 			for(int i = 0; i < hotChunks.size() - 1; i++){
 				c = hotChunks.get(i);
-				System.out.println(c.spawns + " - " + c.activity + " - " + c.load + " - " + c.avgSpawnsPerHour + "   X=" + c.x + " Y=" + c.z);
 				
 				bout.write(("{\"x\":" + (c.z /* de zorgverzekeraar =) */ * 16 + 8) + ",\"y\":" + (c.x * 16) + ",\"w\":" + Math.round(c.avgSpawnsPerHour) + ",\"t\":" + c.spawns + ",\"a\":" + (c.activity / 1000 / 60) + "," + getCreatureJSON(c) + "},").getBytes(Charset.forName("ASCII")));
 			}

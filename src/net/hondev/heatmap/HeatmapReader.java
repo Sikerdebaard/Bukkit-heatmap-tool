@@ -36,7 +36,7 @@ public class HeatmapReader implements Iterable<Spawn>, Iterator<Spawn> {
 		eof = false;
 		
 		try {
-			dataIn = new DataInputStream(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))));
+			dataIn = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)))));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

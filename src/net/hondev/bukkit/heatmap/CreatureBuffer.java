@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
-public class SpawnBuffer {
-	private static final int BUFFER_SIZE = 10485744; // buffer ~10MiB. Make sure there is enough space for at least 60 records.
+public class CreatureBuffer {
+	private static final int BUFFER_SIZE = 10485760; // buffer 10MiB. Make sure there is enough space for at least 60 records when changing size.
 	private static final int RECORD_SIZE = 28;
 	private static final int MAX_RECORDS_IN_BUFFER = (BUFFER_SIZE / RECORD_SIZE) - 50;
 	
@@ -28,7 +28,7 @@ public class SpawnBuffer {
 	
 	private int records;
 	
-	public SpawnBuffer(Logger log){
+	public CreatureBuffer(Logger log){
 		buffer = new ByteArrayOutputStream(BUFFER_SIZE); 
 		dataOut = new DataOutputStream(buffer);
 		records = 0;
@@ -42,7 +42,7 @@ public class SpawnBuffer {
 	 * @param z Chunk Y of spawn
 	 * @param world World No.
 	 */
-	public void registerSpawn(int x, int z, long world, int creature, long time){
+	public void registerDeath(int x, int z, long world, int creature, long time){
 		synchronized(buffer){
 			try {
 				dataOut.writeInt(x);
@@ -96,7 +96,7 @@ public class SpawnBuffer {
 				out.close();
 				buffer.reset();
 			} catch (FileNotFoundException e) {
-				log.info("Heatmap: SpawnBuffer.java; File not found. " + Config.dataFolder + time + ".dat");
+				//log.info("Heatmap: SpawnBuffer.java; File not found. " + Config.dataFolder + time + ".dat");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

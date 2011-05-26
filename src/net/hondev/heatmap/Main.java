@@ -36,11 +36,13 @@ long time = System.currentTimeMillis();
 			}
 		});
 		for(File f :  flist){
-			if(f.isFile() && f.length() > 0 && Long.parseLong(f.getName().substring(0, f.getName().length() - 4)) > System.currentTimeMillis() - 10800000L){
+			if(f.isFile() && f.length() > 0 && /*Long.parseLong(f.getName().substring(0, f.getName().length() - 4)) > 1306248398181L - 10800000L */ Long.parseLong(f.getName().substring(0, f.getName().length() - 4)) > System.currentTimeMillis() - 10800000L){
 				reader = new HeatmapReader(f);
 				for(Spawn s : reader){
 					if(s.getTime() < System.currentTimeMillis() - 7200000L)
 						continue;
+					
+					//if(s.getTime() > 1306248398181L - 7200000L && s.getTime() < 1306248398181L)
 					
 					c++;
 					universe.registerSpawn(s);
